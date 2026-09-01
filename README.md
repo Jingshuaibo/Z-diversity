@@ -27,6 +27,8 @@ The calculation of beta diversity metrices for the simulated presence-absence/ab
 ### 2.4 zdiv_simData.R
 Z diversity analysis on the simulated presence-absence/abundance matrices
 ### 2.5 empirical_data.R  
-Z diversity analysis on the empirical matrices
+Z diversity analysis on the empirical matrices  
+
+**For any questions, contact me via email: 1747225066@qq.com**
 
  
