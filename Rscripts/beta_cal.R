@@ -9,8 +9,10 @@ library(ggpubr)
 library(ggplotify)
 
 #0.Prepare----
-#读取数据
+#read data
+##simulated abundance data 
 load("abun_list.RData")
+##simulated occurrence data
 load("occur_list.RData")
 
 #function for heatmap
@@ -31,6 +33,13 @@ Heatmap_Painter <- function(table_data, title=NULL, ant_r=NULL, ant_c=NULL, ant_
 
 #1.Occurrence_data----
 {#1.1 beta diversity calculation----
+#SOR: total beta diversity (Sorensen dissimilarity)
+#SNE: nestedness component of total beta diversity
+#SIM: turnover component of total beta diversity
+#SNE_ratio: SNE/SOR 
+#SIM_ratio: SIM/SOR
+#TNR: SIM_ratio - SNE_ratio
+  
 beta_summary <- data.frame('Nest'=rep(1:6, each=6), 'Turn'=rep(1:6, 6), 
                            'SNE'=NA, 'SIM'=NA, 'SOR'=NA, 'SNE_ratio'=NA, 'SIM_ratio'=NA, 'TNR'=NA)
 for (x in 1:6) {
@@ -72,4 +81,43 @@ for (i in 1:4) {
 }
 
 }
+
+
+#2.Abundance data----
+#quantitative beta diversity calculation
+#BRAY: total multi-site Bray-Curtis dissimilarity as total quantitative beta diversity for abundance matrix
+#GRA: abundance gradient component of BRAY
+#BAL: balance variation component of BRAY
+#GRA_ratio: GRA/BRAY
+#BAL_ratio: BAL/BRAY
+#BGR: BAL_ratio - GRA_ratio
+#MPB: mean pairwise Bray-Curtis dissimilarity
+
+qbeta_summary <- data.frame('Grad_row'=rep(c(1,2,3), each=108),
+                         'Grad_col'=rep(c(1,2,3), each=36),
+                         'Nest'=rep(c(1,2,3,4,5,6), each=6),
+                         'Turn'=rep(c(1,2,3,4,5,6)),
+                         'GRA'=NA, 'BAL'=NA, 'BRAY'=NA, 'GRA_ratio'=NA, 'BAL_ratio'=NA, 'BGR'=NA, 'MPB'=NA)
+
+for (k in 1:nrow(qbeta_summary)) {
+  x <- qbeta_summary$Grad_row[k]
+  y <- qbeta_summary$Grad_col[k]
+  i <- qbeta_summary$Nest[k]
+  j <- qbeta_summary$Turn[k]
+  
+  beta_tp <- beta.multi.abund(abun_list[[x]][[y]][[i]][[j]], index.family = 'bray')
+  MPB_tp <- beta.pair.abund(abun_list[[x]][[y]][[i]][[j]], index.family = 'bray')
+  
+  qbeta_summary$GRA[k] <- beta_tp[["beta.BRAY.GRA"]]
+  qbeta_summary$BAL[k] <- beta_tp[["beta.BRAY.BAL"]]
+  qbeta_summary$BRAY[k] <- beta_tp[["beta.BRAY"]]
+  qbeta_summary$MPB[k] <-  mean(MPB_tp[["beta.bray"]])
+}
+
+qbeta_summary$GRA_ratio <- qbeta_summary$GRA/qbeta_summary$BRAY
+qbeta_summary$BAL_ratio <- qbeta_summary$BAL/qbeta_summary$BRAY
+qbeta_summary$BGR <- qbeta_summary$BAL_ratio-qbeta_summary$GRA_ratio
+qbeta_summary[is.na(qbeta_summary)] <- 0
+
+write_xlsx(qbeta_summary, 'qbeta_summary.xlsx')
 
