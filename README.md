@@ -29,6 +29,6 @@ Z diversity analysis on the simulated presence-absence/abundance matrices
 ### 2.5 empirical_data.R  
 Z diversity analysis on the empirical matrices  
 
-**For any questions, contact me via email: 1747225066@qq.com**
+**For any questions, contact me via email: jingshuaibo@gmail.com**
 
  
